@@ -102,11 +102,56 @@ class Project:
                     self.sqls_to_process.append(sql)
         return str_error
 
+    def get_map_views(self):
+        return self.map_views.keys()
+
     def initialize(self):
         self.crs_id = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS]
         if self.qgis_iface:
             self.qgis_iface.set_project(self)
         return
+
+    def load_map_views(self,
+                       wfs = None):# [wfs_url, wfs_user, wfs_password]):
+        str_error = ''
+        file_name = self.file_path
+        # str_error, layer_names = self.gpkg_tools.get_layers_names(file_name)
+        str_error, layer_names = GDALTools.get_layers_names(file_name,
+                                                            wfs = wfs)
+        if str_error:
+            str_error = ('Loading gpgk:\n{}\nError:\n{}'.
+                         format(file_name, str_error))
+            return str_error
+        if not defs_project.LOCATIONS_LAYER_NAME in layer_names:
+            str_error = ('Loading gpgk:\n{}\nError: not exists layer:\n{}'.
+                         format(file_name, defs_project.LOCATIONS_LAYER_NAME))
+            return str_error
+        layer_name = defs_project.LOCATIONS_LAYER_NAME
+        fields = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME]
+        fields = {}
+        field_name = defs_project.LOCATIONS_FIELD_NAME
+        fields[field_name] = defs_project.fields_by_layer[layer_name][field_name]
+        field_geometry = defs_project.LOCATIONS_FIELD_GEOMETRY
+        fields[field_geometry] = defs_project.fields_by_layer[layer_name][field_geometry]
+        filter_fields = None
+        # str_error, features = self.gpkg_tools.get_features(file_name,
+        #                                                    layer_name,
+        #                                                    fields,
+        #                                                    filter_fields)
+        # str_error, features = GDALTools.get_features(file_name,
+        #                                              layer_name,
+        #                                              fields,
+        #                                              filter_fields)
+        # if str_error:
+        #     str_error = ('Getting locations from gpgk:\n{}\nError:\n{}'.
+        #                  format(file_name, str_error))
+        #     return str_error
+        # self.map_views.clear()
+        # for i in range(len(features)):
+        #     name = features[i][defs_project.LOCATIONS_FIELD_NAME]
+        #     wkb_geometry = features[i][defs_project.LOCATIONS_FIELD_GEOMETRY]
+        #     self.map_views[name] = wkb_geometry
+        return str_error
 
     def load_project_definition(self,
                                 file_path = None,
