@@ -60,6 +60,20 @@ class Project:
         self.sqls_to_process = []
         self.initialize()
 
+    def add_map_view(self,
+                     map_view_id,
+                     map_view_wkb_geometry,
+                     wfs = None):
+        str_error = ''
+        if map_view_id in self.map_views:
+            str_error = ('Exists a previous location with name: {}'.format(map_view_id))
+            return str_error
+        update = False
+        return self.save_map_view(map_view_id,
+                                  map_view_wkb_geometry,
+                                  update = update,
+                                  wfs = wfs)
+
     def create_layers(self,
                       file_path = None,
                       db_schema = None): # file_path is None, set sqls
@@ -103,6 +117,16 @@ class Project:
                     self.sqls_to_process.append(sql)
         return str_error
 
+    def get_map_view_wkb_geometry(self,
+                                  map_view_id):
+        str_error = ''
+        wkb_geometry = None
+        if not map_view_id in self.map_views:
+            str_error = ('Not exists location: {}'.format(map_view_id))
+            return str_error
+        wkb_geometry = self.map_views[map_view_id]
+        return str_error, wkb_geometry
+
     def get_map_views(self):
         return self.map_views.keys()
 
@@ -133,9 +157,11 @@ class Project:
         layer_name = self.locations_layer_name
         fields = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME]
         fields = {}
-        field_name = defs_project.LOCATIONS_FIELD_NAME
+
         # provisional porque no lee el campo name
+        # field_name = defs_project.LOCATIONS_FIELD_NAME
         field_name = defs_project.LOCATIONS_FIELD_TEMP
+
         fields[field_name] = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][field_name]
         field_geometry = defs_project.LOCATIONS_FIELD_GEOMETRY
         fields[field_geometry] = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][field_geometry]
@@ -150,9 +176,11 @@ class Project:
                          format(file_path, str_error))
             return str_error
         for i in range(len(features)):
-            # name = features[i][defs_project.LOCATIONS_FIELD_NAME]
+
             # provisional porque no lee el campo name
+            # name = features[i][defs_project.LOCATIONS_FIELD_NAME]
             name = features[i][defs_project.LOCATIONS_FIELD_TEMP]
+
             wkb_geometry = features[i][defs_project.LOCATIONS_FIELD_GEOMETRY]
             self.map_views[name] = wkb_geometry
         return str_error
@@ -239,6 +267,73 @@ class Project:
     def save(self):
         str_error = ""
         yo = 1
+        return str_error
+
+    def save_map_view(self,
+                      map_view_id,
+                      map_view_wkb_geometry,
+                      update = False,
+                      wfs = None):
+        str_error = ""
+        features = []
+        feature = []
+        field = {}
+
+        # provisional porque no lee el campo name
+        # field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
+        field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
+
+        # provisional porque no lee el campo name
+        # field[defs_gdal.FIELD_TYPE_TAG] \
+        #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
+
+        field[defs_gdal.FIELD_VALUE_TAG] = map_view_id
+        feature.append(field)
+        # field = {}
+        # field[defs_gdal.FIELD_NAME_TAG] = defs_project.MANAGEMENT_FIELD_CONTENT
+        # field[defs_gdal.FIELD_TYPE_TAG] \
+        #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.MANAGEMENT_FIELD_CONTENT]
+        # field[defs_gdal.FIELD_VALUE_TAG] = value_as_string
+        # feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_GEOMETRY
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_GEOMETRY]
+        field[defs_gdal.FIELD_VALUE_TAG] = map_view_wkb_geometry
+        feature.append(field)
+        features.append(feature)
+        features_by_layer = {}
+        features_by_layer[defs_project.LOCATIONS_LAYER_NAME] = features
+        if not update:
+            str_error = GDALTools.write_features(self.file_path, features_by_layer, wfs = wfs)
+            # str_error = self.gpkg_tools.write(self.file_name,
+            #                                   features_by_layer)
+        else:
+            features_filters = []
+            feature_filters= []
+            filter = {}
+
+            # provisional porque no lee el campo name
+            # filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
+            filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
+
+            # provisional porque no lee el campo name
+            # filter[defs_gdal.FIELD_TYPE_TAG] \
+            #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
+            filter[defs_gdal.FIELD_TYPE_TAG] \
+                = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
+
+            filter[defs_gdal.FIELD_VALUE_TAG] = map_view_id
+            feature_filters.append(filter)
+            features_filters.append(feature_filters)
+            features_filters_by_layer = {}
+            features_filters_by_layer[defs_project.LOCATIONS_LAYER_NAME] = features_filters
+            str_error = GDALTools.update_features(self.file_path, features_by_layer, features_filters_by_layer)
+            # str_error = self.gpkg_tools.update(self.file_name,
+            #                                    features_by_layer,
+            #                                    features_filters_by_layer)
         return str_error
 
     def save_project_definition(self,
