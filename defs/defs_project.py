@@ -5,6 +5,9 @@ import sys
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(current_path, '..'))
+parent_path = os.path.abspath(os.path.join(current_path, os.pardir))
+
+LOCATIONS_SLD_FILE_PATH = os.path.normpath(os.path.join(parent_path, 'templates', 'locations.sld'))
 
 # from defs import defs_paths
 # common_libs_absolute_path = os.path.join(current_path, defs_paths.COMMON_LIBS_RELATIVE_PATH)
@@ -30,7 +33,7 @@ MANAGEMENT_FIELD_NAME = 'name'
 MANAGEMENT_FIELD_CONTENT = 'content'
 MANAGEMENT_FIELD_TEMP = 'temp'
 MANAGEMENT_FIELD_REMARKS = 'remarks'
-MANAGEMENT_FIELD_GEOMETRY = defs_gdal.LAYERS_GEOMETRY_TAG
+MANAGEMENT_FIELD_GEOMETRY = defs_gdal.LAYERS_GEOMETRY_POSTGIS_TAG
 fields_by_layer = {}
 fields_by_layer[MANAGEMENT_LAYER_NAME] = {}
 fields_by_layer[MANAGEMENT_LAYER_NAME][MANAGEMENT_FIELD_NAME] = defs_gdal.type_by_name['string']
@@ -44,7 +47,7 @@ LOCATIONS_FIELD_NAME = 'name'
 LOCATIONS_FIELD_CONTENT = 'content'
 LOCATIONS_FIELD_TEMP = 'temp'
 LOCATIONS_FIELD_REMARKS = 'remarks'
-LOCATIONS_FIELD_GEOMETRY = defs_gdal.LAYERS_GEOMETRY_TAG
+LOCATIONS_FIELD_GEOMETRY = defs_gdal.LAYERS_GEOMETRY_POSTGIS_TAG
 fields_by_layer[LOCATIONS_LAYER_NAME] = {}
 fields_by_layer[LOCATIONS_LAYER_NAME][LOCATIONS_FIELD_NAME] = defs_gdal.type_by_name['string']
 fields_by_layer[LOCATIONS_LAYER_NAME][LOCATIONS_FIELD_CONTENT] = defs_gdal.type_by_name['string']
@@ -54,3 +57,6 @@ fields_by_layer[LOCATIONS_LAYER_NAME][LOCATIONS_FIELD_GEOMETRY] = defs_gdal.geom
 
 restrictions_in_fields_by_layer = {} # to add restrictions in fields example:
 # restrictions_in_fields_by_layer[MANAGEMENT_LAYER_NAME][FIELD_ID] = ['PRIMARY KEY', 'NOT NULL']
+
+sld_by_layer = {}
+sld_by_layer[LOCATIONS_LAYER_NAME] = LOCATIONS_SLD_FILE_PATH

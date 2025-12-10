@@ -58,6 +58,7 @@ class Project:
         self.map_views = {}
         self.process_by_label = {}
         self.sqls_to_process = []
+        self.geometry_field_name = defs_project.LOCATIONS_FIELD_GEOMETRY # maybe geometry or geom
         self.initialize()
 
     def add_map_view(self,
@@ -85,7 +86,7 @@ class Project:
             layers_definition[layer_name] \
                 = defs_project.fields_by_layer[layer_name]
             layers_crs_id = {}
-            if defs_project.fields_by_layer[layer_name][defs_gdal.LAYERS_GEOMETRY_TAG] == defs_gdal.geometry_type_by_name['none']:
+            if defs_project.fields_by_layer[layer_name][self.geometry_field_name] == defs_gdal.geometry_type_by_name['none']:
                 layers_crs_id[layer_name] = None
             else:
                 # project_crs_id =  self.project_definition[defs_project.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS]
@@ -264,6 +265,34 @@ class Project:
             return str_error, definition_is_saved
         return str_error, definition_is_saved
 
+    def remove_map_view(self,
+                        map_view_id,
+                        wfs = None):
+        str_error = ''
+        if not map_view_id in self.map_views:
+            str_error = ('Not exists location with name: {}'.format(map_view_id))
+            return str_error
+        features_filters = []
+        feature_filters = []
+        filter = {}
+        
+        # provisional porque no lee el campo name
+        # filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
+        filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
+
+        # provisional porque no lee el campo name
+        # filter[defs_gdal.FIELD_TYPE_TAG] \
+        #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
+        filter[defs_gdal.FIELD_TYPE_TAG] \
+            = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
+
+        filter[defs_gdal.FIELD_VALUE_TAG] = map_view_id
+        feature_filters.append(filter)
+        features_filters.append(feature_filters)
+        features_filters_by_layer = {}
+        features_filters_by_layer[defs_project.LOCATIONS_LAYER_NAME] = features_filters
+        return GDALTools.remove_features(self.file_path, features_filters_by_layer, wfs = wfs)
+
     def save(self):
         str_error = ""
         yo = 1
@@ -330,7 +359,8 @@ class Project:
             features_filters.append(feature_filters)
             features_filters_by_layer = {}
             features_filters_by_layer[defs_project.LOCATIONS_LAYER_NAME] = features_filters
-            str_error = GDALTools.update_features(self.file_path, features_by_layer, features_filters_by_layer)
+            str_error = GDALTools.update_features(self.file_path, features_by_layer, 
+                                                  features_filters_by_layer, wfs = wfs)
             # str_error = self.gpkg_tools.update(self.file_name,
             #                                    features_by_layer,
             #                                    features_filters_by_layer)
