@@ -160,8 +160,8 @@ class Project:
         fields = {}
 
         # provisional porque no lee el campo name
-        # field_name = defs_project.LOCATIONS_FIELD_NAME
-        field_name = defs_project.LOCATIONS_FIELD_TEMP
+        field_name = defs_project.LOCATIONS_FIELD_NAME
+        # field_name = defs_project.LOCATIONS_FIELD_TEMP
 
         fields[field_name] = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][field_name]
         field_geometry = defs_project.LOCATIONS_FIELD_GEOMETRY
@@ -179,8 +179,8 @@ class Project:
         for i in range(len(features)):
 
             # provisional porque no lee el campo name
-            # name = features[i][defs_project.LOCATIONS_FIELD_NAME]
-            name = features[i][defs_project.LOCATIONS_FIELD_TEMP]
+            name = features[i][defs_project.LOCATIONS_FIELD_NAME]
+            # name = features[i][defs_project.LOCATIONS_FIELD_TEMP]
 
             wkb_geometry = features[i][defs_project.LOCATIONS_FIELD_GEOMETRY]
             self.map_views[name] = wkb_geometry
@@ -309,14 +309,14 @@ class Project:
         field = {}
 
         # provisional porque no lee el campo name
-        # field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
-        field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
+        field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
+        # field[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
 
         # provisional porque no lee el campo name
-        # field[defs_gdal.FIELD_TYPE_TAG] \
-        #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
         field[defs_gdal.FIELD_TYPE_TAG] \
-            = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
+            = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
+        # field[defs_gdal.FIELD_TYPE_TAG] \
+        #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
 
         field[defs_gdal.FIELD_VALUE_TAG] = map_view_id
         feature.append(field)
@@ -345,14 +345,14 @@ class Project:
             filter = {}
 
             # provisional porque no lee el campo name
-            # filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
-            filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
+            filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_NAME
+            # filter[defs_gdal.FIELD_NAME_TAG] = defs_project.LOCATIONS_FIELD_TEMP
 
             # provisional porque no lee el campo name
-            # filter[defs_gdal.FIELD_TYPE_TAG] \
-            #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
             filter[defs_gdal.FIELD_TYPE_TAG] \
-                = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
+                = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_NAME]
+            # filter[defs_gdal.FIELD_TYPE_TAG] \
+            #     = defs_project.fields_by_layer[defs_project.LOCATIONS_LAYER_NAME][defs_project.LOCATIONS_FIELD_TEMP]
 
             filter[defs_gdal.FIELD_VALUE_TAG] = map_view_id
             feature_filters.append(filter)
