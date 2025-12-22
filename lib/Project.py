@@ -116,6 +116,35 @@ class Project:
                     return str_error
                 for sql in sqls:
                     self.sqls_to_process.append(sql)
+        # processes
+        layer_name = processes_defs_project.PROCESESS_LAYER_NAME
+        layers_definition = {}
+        layers_definition[processes_defs_project.PROCESESS_LAYER_NAME] = {}
+        layers_definition[processes_defs_project.PROCESESS_LAYER_NAME] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]
+        layers_crs_id = {}
+        layers_crs_id[processes_defs_project.PROCESESS_LAYER_NAME] = None
+        ignore_existing_layers = True # create new gpkg
+        if file_path:
+            str_error = GDALTools.create_vector(file_path,
+                                                layers_definition,
+                                                layers_crs_id,
+                                                ignore_existing_layers)
+            if str_error:
+                str_error = (
+                    'Creating layer:\n{}\nin file:\n{}\nError:\n{}'.format(layer_name, file_path, str_error))
+                return str_error
+        else:
+            str_error, sqls = PostGISTools.get_sql_create_spatial_table(layers_definition,
+                                                                        layers_crs_id,
+                                                                        defs_project.restrictions_in_fields_by_layer,
+                                                                        db_schema)
+            if str_error:
+                str_error = (
+                    'Getting SQLs for creating layer:\n{}\nError:\n{}'.format(layer_name, str_error))
+                return str_error
+            for sql in sqls:
+                self.sqls_to_process.append(sql)
         return str_error
 
     def get_map_view_wkb_geometry(self,
