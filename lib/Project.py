@@ -215,6 +215,57 @@ class Project:
             self.map_views[name] = wkb_geometry
         return str_error
 
+    def load_processes(self,
+                       file_path = None,
+                       db_schema = None):
+        str_error = ''
+        self.sqls_to_process.clear()
+        layer_name = processes_defs_project.PROCESESS_LAYER_NAME
+        fields = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]
+        if file_path:
+            str_error, layer_names = GDALTools.get_layers_names(self.file_path)
+            if str_error:
+                str_error = ('Loading gpgk:\n{}\nError:\n{}'.
+                             format(self.file_path, str_error))
+                return str_error
+            if not processes_defs_project.PROCESESS_LAYER_NAME in layer_names:
+                str_error = ('Loading gpgk:\n{}\nError: not exists layer:\n{}'.
+                             format(self.file_path, processes_defs_project.PROCESESS_LAYER_NAME))
+                return str_error
+            str_error, features = GDALTools.get_features(self.file_path,
+                                                         layer_name,
+                                                         fields)
+            if str_error:
+                str_error = ('Getting processes from gpgk:\n{}\nError:\n{}'.
+                             format(self.file_path, str_error))
+                return str_error
+            for feature in features:
+                process_label = feature[processes_defs_project.PROCESESS_FIELD_LABEL]
+                process_dict = {}
+                for field_name in processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]:
+                    if field_name == processes_defs_project.PROCESESS_FIELD_GEOMETRY:
+                        continue
+                    field_value = ''
+                    if field_name in feature:
+                        field_value = feature[field_name]
+                    process_dict[field_name] = field_value
+                if process_label in self.process_by_label:
+                    self.process_by_label.pop(process_label)
+                self.process_by_label[process_label] = process_dict
+        else:
+            del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+            str_error, sqls = PostGISTools.get_sql_get_features(layer_name,
+                                                                fields,
+                                                                filter_fields_or_string = None,
+                                                                db_schema = db_schema)
+            if str_error:
+                str_error = (
+                    'Getting SQLs for get features from layer:\n{}\nError:\n{}'.format(layer_name, str_error))
+                return str_error
+            for sql in sqls:
+                self.sqls_to_process.append(sql)
+        return str_error
+
     def load_project_definition(self,
                                 file_path = None,
                                 db_schema = None):
@@ -321,6 +372,40 @@ class Project:
         features_filters_by_layer = {}
         features_filters_by_layer[defs_project.LOCATIONS_LAYER_NAME] = features_filters
         return GDALTools.remove_features(self.file_path, features_filters_by_layer, wfs = wfs)
+
+    def remove_process(self,
+                       process_label,
+                       file_path = None,
+                       db_schema = None):
+        str_error = ''
+        self.sqls_to_process.clear()
+        layer_name = processes_defs_project.PROCESESS_LAYER_NAME
+        features_filters = []
+        feature_filters = []
+        filter = {}
+        filter[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_LABEL
+        filter[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_LABEL]
+        filter[defs_gdal.FIELD_VALUE_TAG] = process_label
+        feature_filters.append(filter)
+        features_filters.append(feature_filters)
+        features_filters_by_layer = {}
+        features_filters_by_layer[processes_defs_project.PROCESESS_LAYER_NAME] = features_filters
+        if file_path:
+            str_error = GDALTools.remove_features(self.file_path, features_filters_by_layer)
+            if not str_error:
+                self.process_by_label.pop(process_label)
+        else:
+            # del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+            str_error, sqls = PostGISTools.get_sql_delete_features(features_filters_by_layer,
+                                                                   db_schema = db_schema)
+            if str_error:
+                str_error = (
+                    'Getting SQLs for delete features from layer:\n{}\nError:\n{}'.format(layer_name, str_error))
+                return str_error
+            for sql in sqls:
+                self.sqls_to_process.append(sql)
+        return str_error
 
     def save(self):
         str_error = ""
