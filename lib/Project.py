@@ -223,21 +223,21 @@ class Project:
         layer_name = processes_defs_project.PROCESESS_LAYER_NAME
         fields = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]
         if file_path:
-            str_error, layer_names = GDALTools.get_layers_names(self.file_path)
+            str_error, layer_names = GDALTools.get_layers_names(file_path)
             if str_error:
                 str_error = ('Loading gpgk:\n{}\nError:\n{}'.
-                             format(self.file_path, str_error))
+                             format(file_path, str_error))
                 return str_error
             if not processes_defs_project.PROCESESS_LAYER_NAME in layer_names:
                 str_error = ('Loading gpgk:\n{}\nError: not exists layer:\n{}'.
-                             format(self.file_path, processes_defs_project.PROCESESS_LAYER_NAME))
+                             format(file_path, processes_defs_project.PROCESESS_LAYER_NAME))
                 return str_error
-            str_error, features = GDALTools.get_features(self.file_path,
+            str_error, features = GDALTools.get_features(file_path,
                                                          layer_name,
                                                          fields)
             if str_error:
                 str_error = ('Getting processes from gpgk:\n{}\nError:\n{}'.
-                             format(self.file_path, str_error))
+                             format(file_path, str_error))
                 return str_error
             for feature in features:
                 process_label = feature[processes_defs_project.PROCESESS_FIELD_LABEL]
@@ -392,7 +392,7 @@ class Project:
         features_filters_by_layer = {}
         features_filters_by_layer[processes_defs_project.PROCESESS_LAYER_NAME] = features_filters
         if file_path:
-            str_error = GDALTools.remove_features(self.file_path, features_filters_by_layer)
+            str_error = GDALTools.remove_features(file_path, features_filters_by_layer)
             if not str_error:
                 self.process_by_label.pop(process_label)
         else:
@@ -523,28 +523,26 @@ class Project:
                 for sql in sqls:
                     self.sqls_to_process.append(sql)
         else:
-            yo = 1
-
-        # if not update:
-        #     str_error = GDALTools.write_features(self.file_path, features_by_layer)
-        #     # str_error = self.gpkg_tools.write(self.file_name,
-        #     #                                   features_by_layer)
-        # else:
-        #     features_filters = []
-        #     feature_filters= []
-        #     filter = {}
-        #     filter[defs_gdal.FIELD_NAME_TAG] = defs_project.MANAGEMENT_FIELD_NAME
-        #     filter[defs_gdal.FIELD_TYPE_TAG] \
-        #         = defs_project.fields_by_layer[defs_project.MANAGEMENT_LAYER_NAME][defs_project.MANAGEMENT_FIELD_NAME]
-        #     filter[defs_gdal.FIELD_VALUE_TAG] = defs_project.PROJECT_DEFINITIONS_MANAGEMENT_FIELD_NAME
-        #     feature_filters.append(filter)
-        #     features_filters.append(feature_filters)
-        #     features_filters_by_layer = {}
-        #     features_filters_by_layer[defs_project.MANAGEMENT_LAYER_NAME] = features_filters
-        #     str_error = GDALTools.update_features(self.file_path, features_by_layer, features_filters_by_layer)
-        #     # str_error = self.gpkg_tools.update(self.file_name,
-        #     #                                    features_by_layer,
-        #     #                                    features_filters_by_layer)
+            if not update:
+                str_error = GDALTools.write_features(file_path, features_by_layer)
+                # str_error = self.gpkg_tools.write(self.file_name,
+                #                                   features_by_layer)
+            else:
+                features_filters = []
+                feature_filters= []
+                filter = {}
+                filter[defs_gdal.FIELD_NAME_TAG] = defs_project.MANAGEMENT_FIELD_NAME
+                filter[defs_gdal.FIELD_TYPE_TAG] \
+                    = defs_project.fields_by_layer[defs_project.MANAGEMENT_LAYER_NAME][defs_project.MANAGEMENT_FIELD_NAME]
+                filter[defs_gdal.FIELD_VALUE_TAG] = defs_project.PROJECT_DEFINITIONS_MANAGEMENT_FIELD_NAME
+                feature_filters.append(filter)
+                features_filters.append(feature_filters)
+                features_filters_by_layer = {}
+                features_filters_by_layer[defs_project.MANAGEMENT_LAYER_NAME] = features_filters
+                str_error = GDALTools.update_features(file_path, features_by_layer, features_filters_by_layer)
+                # str_error = self.gpkg_tools.update(self.file_name,
+                #                                    features_by_layer,
+                #                                    features_filters_by_layer)
         return str_error
 
     def set_definition_from_json(self, json_content):
@@ -643,3 +641,93 @@ class Project:
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE] = start_date
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_FINISH_DATE] = finish_date
         return str_error
+
+    def update_process(self,
+                       original_label,
+                       process_label,
+                       file_path=None,
+                       db_schema=None):
+        str_error = ''
+        self.sqls_to_process.clear()
+        if not process_label in self.process_by_label:
+            str_error = ('Not exists process: {}'.format(process_label))
+            return str_error
+        features = []
+        feature = []
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_LABEL
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_LABEL]
+        field[defs_gdal.FIELD_VALUE_TAG] = process_label
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_AUTHOR
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_AUTHOR]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_AUTHOR]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_DESCRIPTION
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_DESCRIPTION]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_DESCRIPTION]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_DATE_TIME
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_DATE_TIME]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_DATE_TIME]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_PROCESS_CONTENT
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_PROCESS_CONTENT]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_PROCESS_CONTENT]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_LOG
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_LOG]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_LOG]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_REMARKS
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_REMARKS]
+        field[defs_gdal.FIELD_VALUE_TAG] = self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_REMARKS]
+        feature.append(field)
+        field = {}
+        field[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_GEOMETRY
+        field[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+        field[defs_gdal.FIELD_VALUE_TAG] = processes_defs_project.fields_by_layer[
+            processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+        feature.append(field)
+        features.append(feature)
+        features_by_layer = {}
+        features_by_layer[processes_defs_project.PROCESESS_LAYER_NAME] = features
+        features_filters = []
+        feature_filters = []
+        filter = {}
+        filter[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_LABEL
+        filter[defs_gdal.FIELD_TYPE_TAG] \
+            = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_LABEL]
+        filter[defs_gdal.FIELD_VALUE_TAG] = original_process_label
+        feature_filters.append(filter)
+        features_filters.append(feature_filters)
+        features_filters_by_layer = {}
+        features_filters_by_layer[processes_defs_project.PROCESESS_LAYER_NAME] = features_filters
+        if file_path:
+            str_error = GDALTools.update_features(file_path, features_by_layer, features_filters_by_layer)
+        else:
+            # del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+            str_error, sqls = PostGISTools.get_sql_delete_features(features_filters_by_layer,
+                                                                   db_schema = db_schema)
+            if str_error:
+                str_error = (
+                    'Getting SQLs for delete features from layer:\n{}\nError:\n{}'.format(layer_name, str_error))
+                return str_error
+            for sql in sqls:
+                self.sqls_to_process.append(sql)
+        return str_error
+
