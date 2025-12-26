@@ -253,7 +253,7 @@ class Project:
                     self.process_by_label.pop(process_label)
                 self.process_by_label[process_label] = process_dict
         else:
-            del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
+            # del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
             str_error, sqls = PostGISTools.get_sql_get_features(layer_name,
                                                                 fields,
                                                                 filter_fields_or_string = None,
@@ -512,33 +512,38 @@ class Project:
         features.append(feature)
         features_by_layer = {}
         features_by_layer[defs_project.MANAGEMENT_LAYER_NAME] = features
+        features_filters_by_layer = None
+        if update:
+            features_filters = []
+            feature_filters = []
+            filter = {}
+            filter[defs_gdal.FIELD_NAME_TAG] = defs_project.MANAGEMENT_FIELD_NAME
+            filter[defs_gdal.FIELD_TYPE_TAG] \
+                = defs_project.fields_by_layer[defs_project.MANAGEMENT_LAYER_NAME][defs_project.MANAGEMENT_FIELD_NAME]
+            filter[defs_gdal.FIELD_VALUE_TAG] = defs_project_definition.PROJECT_DEFINITIONS_MANAGEMENT_FIELD_NAME
+            feature_filters.append(filter)
+            features_filters.append(feature_filters)
+            features_filters_by_layer = {}
+            features_filters_by_layer[defs_project.MANAGEMENT_LAYER_NAME] = features_filters
         if file_path is None:
+            sqls = None
             if not update:
                 str_error, sqls = PostGISTools.get_sql_write_features(features_by_layer,
                                                                       db_schema)
-                if str_error:
-                    str_error = (
-                        'Getting SQLs for write features in layer:\n{}\nError:\n{}'.format(layer_name, str_error))
-                    return str_error
-                for sql in sqls:
-                    self.sqls_to_process.append(sql)
+            else:
+                str_error, sqls = PostGISTools.get_sql_update_features(features_by_layer,
+                                                                       features_filters_by_layer,
+                                                                       db_schema = db_schema)
+            if str_error:
+                str_error = ('Getting SQLs for write features in layer:\n{}\nError:\n{}'
+                             .format(layer_name, str_error))
+                return str_error
+            for sql in sqls:
+                self.sqls_to_process.append(sql)
         else:
             if not update:
                 str_error = GDALTools.write_features(file_path, features_by_layer)
-                # str_error = self.gpkg_tools.write(self.file_name,
-                #                                   features_by_layer)
             else:
-                features_filters = []
-                feature_filters= []
-                filter = {}
-                filter[defs_gdal.FIELD_NAME_TAG] = defs_project.MANAGEMENT_FIELD_NAME
-                filter[defs_gdal.FIELD_TYPE_TAG] \
-                    = defs_project.fields_by_layer[defs_project.MANAGEMENT_LAYER_NAME][defs_project.MANAGEMENT_FIELD_NAME]
-                filter[defs_gdal.FIELD_VALUE_TAG] = defs_project.PROJECT_DEFINITIONS_MANAGEMENT_FIELD_NAME
-                feature_filters.append(filter)
-                features_filters.append(feature_filters)
-                features_filters_by_layer = {}
-                features_filters_by_layer[defs_project.MANAGEMENT_LAYER_NAME] = features_filters
                 str_error = GDALTools.update_features(file_path, features_by_layer, features_filters_by_layer)
                 # str_error = self.gpkg_tools.update(self.file_name,
                 #                                    features_by_layer,
@@ -712,7 +717,7 @@ class Project:
         filter[defs_gdal.FIELD_NAME_TAG] = processes_defs_project.PROCESESS_FIELD_LABEL
         filter[defs_gdal.FIELD_TYPE_TAG] \
             = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME][processes_defs_project.PROCESESS_FIELD_LABEL]
-        filter[defs_gdal.FIELD_VALUE_TAG] = original_process_label
+        filter[defs_gdal.FIELD_VALUE_TAG] = original_label
         feature_filters.append(filter)
         features_filters.append(feature_filters)
         features_filters_by_layer = {}
@@ -721,7 +726,8 @@ class Project:
             str_error = GDALTools.update_features(file_path, features_by_layer, features_filters_by_layer)
         else:
             # del fields[processes_defs_project.PROCESESS_FIELD_GEOMETRY]
-            str_error, sqls = PostGISTools.get_sql_delete_features(features_filters_by_layer,
+            str_error, sqls = PostGISTools.get_sql_update_features(features_by_layer,
+                                                                   features_filters_by_layer,
                                                                    db_schema = db_schema)
             if str_error:
                 str_error = (

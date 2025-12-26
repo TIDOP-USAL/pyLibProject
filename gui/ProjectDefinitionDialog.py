@@ -108,7 +108,7 @@ class ProjectDefinitionDialog(QDialog):
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_DESCRIPTION] = description
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE] = star_date_as_str
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_FINISH_DATE] = finish_date_as_str
-        str_aux_error = self.project.save()
+        str_aux_error = self.project.save(self.is_process_creation)
         if str_aux_error:
             str_error = ('Error saving project definition:\n{}'.
                          format(str_aux_error))
