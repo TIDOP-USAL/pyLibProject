@@ -589,8 +589,8 @@ class Project:
         crs_id = None
         if(defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS in json_content
                 and defs_project_definition.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS in json_content):
-            crs_projected_id = json_content[defs_project.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS]
-            crs_vertical_id = json_content[defs_project.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS]
+            crs_projected_id = json_content[defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS]
+            crs_vertical_id = json_content[defs_project_definition.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS]
         else:
             if not defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS in json_content:
                 str_error = ("No {} in json content {}".format(defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS,
@@ -614,7 +614,7 @@ class Project:
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_NAME] = name
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG] = tag
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_AUTHOR] = author
-        if( not crs_projected_id is None and not crs_vertical_id):
+        if( not crs_projected_id is None and not crs_vertical_id is None):
             self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS] = crs_projected_id
             self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS] = crs_vertical_id
             epsg_crs_prefix = defs_crs.EPSG_TAG + ':'
