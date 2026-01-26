@@ -80,6 +80,7 @@ class Project:
                       db_schema = None): # file_path is None, set sqls
         str_error = ''
         self.sqls_to_process.clear()
+        ignore_existing_layers = False  # create new gpkg
         for layer_name in defs_project.fields_by_layer:
             layers_definition = {}
             layers_definition[layer_name] = {}
@@ -93,7 +94,6 @@ class Project:
                 # self.project_definition[defs_project.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS] = defs_project.CRS_VERTICAL_DEFAULT
                 layer_crs_id = self.crs_id
                 layers_crs_id[layer_name] = layer_crs_id
-            ignore_existing_layers = True  # create new gpkg
             create_options = defs_project.create_options
             if file_path:
                 str_error = GDALTools.create_vector(file_path,
@@ -105,6 +105,7 @@ class Project:
                     str_error = (
                         'Creating layer:\n{}\nin file:\n{}\nError:\n{}'.format(layer_name, file_path, str_error))
                     return str_error
+                ignore_existing_layers = True  # no create new gpkg
             else:
                 str_error, sqls = PostGISTools.get_sql_create_spatial_table(layers_definition,
                                                                             layers_crs_id,
@@ -124,7 +125,7 @@ class Project:
             = processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]
         layers_crs_id = {}
         layers_crs_id[processes_defs_project.PROCESESS_LAYER_NAME] = None
-        ignore_existing_layers = True # create new gpkg
+        ignore_existing_layers = True # no create new gpkg
         if file_path:
             str_error = GDALTools.create_vector(file_path,
                                                 layers_definition,
@@ -671,7 +672,7 @@ class Project:
                                                                        db_schema = db_schema)
             if str_error:
                 str_error = ('Getting SQLs for write features in layer:\n{}\nError:\n{}'
-                             .format(layer_name, str_error))
+                             .format(defs_project.MANAGEMENT_LAYER_NAME, str_error))
                 return str_error
             for sql in sqls:
                 self.sqls_to_process.append(sql)
