@@ -6,8 +6,8 @@ import sys
 import json
 import xmltodict
 
-from PyQt5.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog, QPushButton, QComboBox
-from PyQt5.QtCore import QDir, QFileInfo, QFile, QDate, QDateTime
+from qgis.PyQt.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog, QPushButton, QComboBox
+from qgis.PyQt.QtCore import QDir, QFileInfo, QFile, QDate, QDateTime
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(current_path, '..'))
