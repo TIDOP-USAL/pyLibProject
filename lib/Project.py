@@ -15,6 +15,7 @@ sys.path.append(os.path.join(current_path, '../..'))
 
 from pyLibProcesses.defs import defs_project as processes_defs_project
 from pyLibProcesses.defs import defs_processes as processes_defs_processes
+
 # from pyLibPhotogrammetry.defs import defs_project, defs_processes
 # from pyLibPhotogrammetry.defs import defs_images as defs_img
 # from pyLibPhotogrammetry.defs import defs_metashape_markers as defs_msm
@@ -59,6 +60,7 @@ class Project:
         self.process_by_label = {}
         self.sqls_to_process = []
         self.geometry_field_name = defs_project.LOCATIONS_FIELD_GEOMETRY # maybe geometry or geom
+        self.processes_manager = None
         self.initialize()
 
     def add_map_view(self,
@@ -782,6 +784,10 @@ class Project:
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE] = start_date
         self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_FINISH_DATE] = finish_date
         return str_error
+    
+    def set_processes_manager(self,
+                              processes_manager):
+        self.processes_manager = processes_manager
 
     def update_process(self,
                        original_label,
