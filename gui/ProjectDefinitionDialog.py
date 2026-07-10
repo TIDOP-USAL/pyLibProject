@@ -104,6 +104,18 @@ class ProjectDefinitionDialog(QDialog):
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG] = tag
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_AUTHOR] = author
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS] = crs_id
+        crs_projected_id = crs_id
+        crs_vertical_id = None
+        if '+' in crs_id:
+            epsg_crs_prefix = defs_crs.EPSG_TAG + ':'
+            srs_id = crs_id.replace(defs_crs.EPSG_STRING_PREFIX, ' ')
+            srs_id = srs_id.replace('+', ' ')
+            srs_id = srs_id.strip()
+            values = srs_id.split(' ')
+            crs_projected_id = epsg_crs_prefix + values[0]
+            crs_vertical_id = epsg_crs_prefix + values[1]
+        self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS] = crs_projected_id
+        self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_VERTICAL_CRS] = crs_vertical_id
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_OUTPUT_PATH] = output_path
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_DESCRIPTION] = description
         self.project.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE] = star_date_as_str
