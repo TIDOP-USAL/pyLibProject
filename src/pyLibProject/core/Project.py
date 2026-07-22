@@ -4,26 +4,21 @@
 import os
 import sys
 import json
-import xmltodict
 
 from qgis.PyQt.QtWidgets import QApplication, QMessageBox, QDialog, QFileDialog, QPushButton, QComboBox
 from qgis.PyQt.QtCore import QDir, QFileInfo, QFile, QDate, QDateTime
 
-current_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_path, '..'))
-sys.path.append(os.path.join(current_path, '../..'))
-
 from pyLibProcesses.defs import defs_project as processes_defs_project
-from pyLibProcesses.defs import defs_processes as processes_defs_processes
+# from pyLibProcesses.defs import defs_processes as processes_defs_processes
 
 # from pyLibPhotogrammetry.defs import defs_project, defs_processes
 # from pyLibPhotogrammetry.defs import defs_images as defs_img
 # from pyLibPhotogrammetry.defs import defs_metashape_markers as defs_msm
-from pyLibParameters import defs_pars
-from pyLibParameters.ParametersManager import ParametersManager
+# from pyLibParameters import defs_pars
+# from pyLibParameters.ParametersManager import ParametersManager
 # from pyLibPhotogrammetry.gui.ProjectDefinitionDialog import ProjectDefinitionDialog
-# from pyLibPhotogrammetry.lib.ATBlockMetashape import ATBlockMetashape
-# from pyLibPhotogrammetry.lib.IExifTool import IExifTool
+# from pyLibPhotogrammetry.core.ATBlockMetashape import ATBlockMetashape
+# from pyLibPhotogrammetry.core.IExifTool import IExifTool
 from pyLibCRSs import CRSsDefines as defs_crs
 from pyLibCRSs.CRSsTools import CRSsTools
 from pyLibQtTools import Tools

@@ -3,10 +3,6 @@
 import os
 import sys
 
-current_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_path, '..'))
-# sys.path.append(os.path.join(current_path, '../..'))
-
 from pyLibProject.defs import defs_project as defs_project
 
 LAYERS_GROUPS_POS_ORDER = 1

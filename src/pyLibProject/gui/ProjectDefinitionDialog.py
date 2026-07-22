@@ -13,14 +13,6 @@ from qgis.PyQt.QtWidgets import (QApplication, QMessageBox, QDialog, QTreeWidget
                              QDialogButtonBox, QVBoxLayout, QTableWidget, QTableWidgetItem, QInputDialog)
 from qgis.PyQt.QtCore import QDir, QFileInfo, QFile, QSize, Qt, QDate
 
-current_path = os.path.dirname(os.path.realpath(__file__))
-# current_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_path, '..'))
-sys.path.append(os.path.join(current_path, '../..'))
-# sys.path.insert(0, '..')
-# sys.path.insert(0, '../..')
-
-
 from pyLibCRSs.CompoundProjectedCRSDialog import CompoundProjectedCRSDialog
 from pyLibCRSs import CRSsDefines as defs_crs
 from pyLibQtTools import Tools

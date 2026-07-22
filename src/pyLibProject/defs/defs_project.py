@@ -4,7 +4,6 @@ import os
 import sys
 
 current_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_path, '..'))
 parent_path = os.path.abspath(os.path.join(current_path, os.pardir))
 
 LOCATIONS_SLD_FILE_PATH = os.path.normpath(os.path.join(parent_path, 'templates', 'locations.sld'))

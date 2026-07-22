@@ -3,9 +3,6 @@
 import os
 import sys
 
-current_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(current_path, '..'))
-
 from pyLibProject.defs import defs_project as defs_project
 from pyLibProject.defs import defs_layers_groups as defs_layers_groups
 
