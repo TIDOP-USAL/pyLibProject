@@ -1,17 +1,12 @@
 # authors:
 # David Hernandez Lopez, david.hernandez@uclm.es
 import os
-import sys
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 parent_path = os.path.abspath(os.path.join(current_path, os.pardir))
 
 LOCATIONS_SLD_FILE_PATH = os.path.normpath(os.path.join(parent_path, 'templates', 'locations.sld'))
 
-# from defs import defs_paths
-# common_libs_absolute_path = os.path.join(current_path, defs_paths.COMMON_LIBS_RELATIVE_PATH)
-# sys.path.append(common_libs_absolute_path)
-from pyLibCRSs import CRSsDefines as defs_crs
 from pyLibGDAL import defs_gdal
 
 TEMPLATES_PATH = "templates"

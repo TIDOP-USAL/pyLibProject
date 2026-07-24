@@ -1,7 +1,5 @@
 # authors:
 # David Hernandez Lopez, david.hernandez@uclm.es
-import os
-import sys
 
 from pyLibCRSs import CRSsDefines as defs_crs
 

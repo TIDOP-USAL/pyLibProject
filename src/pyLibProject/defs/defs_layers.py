@@ -1,10 +1,8 @@
 # authors:
 # David Hernandez Lopez, david.hernandez@uclm.es
-import os
-import sys
 
-from pyLibProject.defs import defs_project as defs_project
-from pyLibProject.defs import defs_layers_groups as defs_layers_groups
+from . import defs_project as defs_project
+from . import defs_layers_groups as defs_layers_groups
 
 LAYERS_POS_ORDER = 1
 LAYERS_FIELD_MIN_ZOOM = 1

@@ -2,9 +2,6 @@
 # David Hernandez Lopez, david.hernandez@uclm.es
 
 import os
-import sys
-import math
-import json
 
 from qgis.PyQt import QtCore, QtWidgets
 from qgis.PyQt.uic import loadUi
@@ -15,14 +12,10 @@ from qgis.PyQt.QtCore import QDir, QFileInfo, QFile, QSize, Qt, QDate
 
 from pyLibCRSs.CompoundProjectedCRSDialog import CompoundProjectedCRSDialog
 from pyLibCRSs import CRSsDefines as defs_crs
-from pyLibQtTools import Tools
-from pyLibQtTools.Tools import SimpleTextEditDialog
-from pyLibQtTools.CalendarDialog import CalendarDialog
-from pyLibProject.defs import defs_project_definition
+from pyLibQtTools import error_msg, info_msg, SimpleTextEditDialog
+from ..defs import defs_project_definition
 
 class ProjectDefinitionDialog(QDialog):
-    """Employee dialog."""
-
     def __init__(self,
                  project,
                  title,
@@ -116,13 +109,13 @@ class ProjectDefinitionDialog(QDialog):
         if str_aux_error:
             str_error = ('Error saving project definition:\n{}'.
                          format(str_aux_error))
-            Tools.error_msg(str_error)
+            error_msg(str_error)
             self.is_saved = False
             return
         else:
             if self.display_sucess_save:
                 str_msg = "Process completed"
-                Tools.info_msg(str_msg)
+                info_msg(str_msg)
         self.is_saved = True
         self.accept()
         return
