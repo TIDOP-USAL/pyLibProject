@@ -143,6 +143,41 @@ class Project:
     def get_map_views(self):
         return self.map_views.keys()
 
+    def get_project_definition_projected_crs_epsg_code(self):
+        str_error = ''
+        epsg_code = None
+        if not defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS in self.project_definition:
+            str_error =('Not exists {} in project definition'.format(
+                defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS))
+            return str_error
+        str_project_crs_epsg_code = self.project_definition[
+            defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS]
+        try:
+            epsg_code = int(str_project_crs_epsg_code.replace(defs_project_definition.EPSG_STRING_PREFIX, ''))
+        except ValueError:
+            str_error = ('Invalid integer value from: {}'.format(str_project_crs_epsg_code))
+        return str_error, epsg_code
+
+    def get_project_definition_projected_crs(self):
+        str_error = ''
+        project_crs = None
+        if not defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS in self.project_definition:
+            str_error =('Not exists {} in project definition'.format(
+                defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS))
+            return str_error
+        project_crs = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_PROJECTED_CRS]
+        return str_error, project_crs
+
+    def get_project_definition_tag(self):
+        str_error = ''
+        tag = None
+        if not defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG in self.project_definition:
+            str_error =('Not exists {} in project definition'.format(
+                defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG))
+            return str_error
+        tag = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG]
+        return str_error, tag
+
     def initialize(self):
         self.crs_id = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS]
         if self.qgis_iface:
